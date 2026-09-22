@@ -153,6 +153,13 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    if typed_word in word_list:
+        return typed_word
+    best_word = min(word_list, key=lambda w: diff_function(typed_word, w, limit))
+
+    if diff_function(typed_word, best_word, limit) <= limit:
+        return best_word
+    return typed_word
     # END PROBLEM 5
 
 
@@ -179,7 +186,30 @@ def feline_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    # def cnt(typed, source, limit, x):
+    #     if x > limit:
+    #         return limit + 1
+    #     if typed == '':
+    #         return x
+    #     return cnt(typed[1:], source[1:], limit, x + (typed[0] != source[0]))
+    # len1 = len(typed)
+    # len2 = len(source)
+    # diff = abs(len1 - len2)
+    # min_len = min(len1, len2)
+    # typed = typed[:min_len]
+    # source = source[:min_len]
+    # return diff + cnt(typed, source, limit, 0)
+    # 基线 1：预算耗尽，立即剪枝停止递归
+    if limit < 0:
+        return 0
+    # 基线 2：有一方为空，剩余差异即为另一方的剩余长度
+    if not typed or not source:
+        return len(typed) + len(source)
+    # 递归情况：首字母相同，不消耗 limit
+    if typed[0] == source[0]:
+        return feline_fixes(typed[1:], source[1:], limit)
+    # 递归情况：首字母不同，产生 1 次差异，limit 预算减 1
+    return 1 + feline_fixes(typed[1:], source[1:], limit - 1)
     # END PROBLEM 6
 
 
@@ -203,23 +233,18 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    if limit < 0:
+        return 0
+    if not typed or not source:
+        return len(typed) + len(source)
+
+    if typed[0] == source[0]:
+        return minimum_mewtations(typed[1:], source[1:], limit)
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+        add = minimum_mewtations(typed, source[1:], limit - 1)
+        remove = minimum_mewtations(typed[1:], source, limit - 1)
+        substitute = minimum_mewtations(typed[1:], source[1:], limit - 1)
+        return 1 + min(add, remove, substitute)
 
 
 def final_diff(typed, source, limit):
